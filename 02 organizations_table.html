@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benefits Access Organizations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f5f7fa;
+            padding: 40px 20px;
+            color: #2d3748;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #1a202c;
+        }
+        
+        .subtitle {
+            color: #718096;
+            font-size: 16px;
+        }
+        
+        .table-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .stat {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #718096;
+            font-weight: 600;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        th {
+            background: #1f2937;
+            color: white;
+            padding: 14px 12px;
+            text-align: left;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            transition: background 0.2s;
+        }
+        
+        th:hover {
+            background: #374151;
+        }
+        
+        th::after {
+            content: ' ⇅';
+            opacity: 0.5;
+            font-size: 11px;
+            margin-left: 5px;
+        }
+        
+        th.sorted-asc::after {
+            content: ' ↑';
+            opacity: 1;
+        }
+        
+        th.sorted-desc::after {
+            content: ' ↓';
+            opacity: 1;
+        }
+        
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: middle;
+        }
+        
+        tr:hover {
+            background: #f7fafc;
+        }
+        
+        .logo-cell {
+            width: 70px;
+        }
+        
+        .logo-cell img {
+            width: 55px;
+            height: 55px;
+            object-fit: contain;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .org-name {
+            font-weight: 600;
+            color: #1a202c;
+        }
+        
+        .org-type {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .org-type.for-profit {
+            background: #e6f7ff;
+            color: #0050b3;
+            border: 1px solid #91d5ff;
+        }
+        
+        .org-type.non-profit {
+            background: #f6ffed;
+            color: #389e0d;
+            border: 1px solid #b7eb8f;
+        }
+        
+        .product-details {
+            color: #4a5568;
+            line-height: 1.5;
+        }
+        
+        .payer {
+            color: #4a5568;
+        }
+        
+        .search-box {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Benefits Access Organizations</h1>
+            <p class="subtitle">Comprehensive directory of organizations working on benefits access and navigation</p>
+        </header>
+        
+        <div class="table-container">
+            <div class="stats" id="stats"></div>
+            
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search organizations, products, or payers...">
+            </div>
+            
+            <table id="orgTable">
+                <thead>
+                    <tr>
+                        <th data-column="logo">Logo</th>
+                        <th data-column="name">Organization</th>
+                        <th data-column="orgType">Org Type</th>
+                        <th data-column="productDetails">Product Details</th>
+                        <th data-column="payer">Payer</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        const organizationsData = [
+            {"name": "FrontDoor Benefits", "logo": "frontdoorbenefits.webp", "orgType": "For-Profit", "productDetails": "White-glove application assistance", "payer": "Grocery Stores"},
+            {"name": "MyFriendBen", "logo": "myfriendben.webp", "orgType": "Non-Profit", "productDetails": "Open-source screener tool for multiple benefits", "payer": "Philanthropy"},
+            {"name": "Digital Public Works", "logo": "digitalpublicworks.avif", "orgType": "Non-Profit", "productDetails": "Income verification as a service to government", "payer": "Government"},
+            {"name": "mRelief", "logo": "mrelief.svg", "orgType": "Non-Profit", "productDetails": "Screening and simplified application assistance", "payer": "Philanthropy"},
+            {"name": "Exygy", "logo": "exygy.png", "orgType": "For-Profit", "productDetails": "Benefits application front-end for government (CiviForm)", "payer": "Government; Philanthropy"},
+            {"name": "SteadyIQ", "logo": "steadyiq.svg", "orgType": "For-Profit", "productDetails": "Income verification as a service to government", "payer": "Government"},
+            {"name": "Starlight", "logo": "starlight.webp", "orgType": "For-Profit", "productDetails": "Application assistance using credit unions", "payer": "Credit Unions"},
+            {"name": "National WIC Association", "logo": "nationalwicassociation.jpg", "orgType": "Non-Profit", "productDetails": "Very basic referral for WIC", "payer": "Government; Philanthropy"},
+            {"name": "Beam", "logo": "beam.png", "orgType": "For-Profit", "productDetails": "Software that supports payment and delivery of state/local benefits", "payer": "Government; Philanthropy"},
+            {"name": "Mirza", "logo": "mirza.jpg", "orgType": "For-Profit", "productDetails": "Software for screening and application assistance", "payer": "Employer"},
+            {"name": "SNAPScreener", "logo": "snapscreener.png", "orgType": "Non-profit", "productDetails": "SNAP screening widget/site", "payer": "Philanthropy"},
+            {"name": "PolicyEngine", "logo": "policyengine.webp", "orgType": "Non-profit", "productDetails": "Open source back-end rules engine for multiple benefits", "payer": "Nonprofit"},
+            {"name": "Single Stop USA", "logo": "singlestop.jpg", "orgType": "Non-profit", "productDetails": "Screening and referral for multiple benefit types", "payer": "Post-secondary"},
+            {"name": "Benny", "logo": "benny.png", "orgType": "For-profit", "productDetails": "Application assistance for SSDI specialists", "payer": "Legal"},
+            {"name": "Semicolon Design Group", "logo": "semicolondesigngroup.jpg", "orgType": "For-profit", "productDetails": "Working with governments to improve correspondence design", "payer": "Government; Philanthropy"},
+            {"name": "Public Policy Lab", "logo": "publicpolicylab.png", "orgType": "Non-profit", "productDetails": "Working with governments to improve correspondence design", "payer": "Government; Philanthropy"},
+            {"name": "Propel", "logo": "propel.png", "orgType": "For-profit", "productDetails": "Help people see what benefits they have (balance checking)", "payer": "Ads / FinTech Referral"},
+            {"name": "Student Basic Needs Coalition", "logo": "studentbasicneedscoalition.png", "orgType": "Non-profit", "productDetails": "Focused on college students; screening and application", "payer": "Philanthropy"},
+            {"name": "Nava Labs", "logo": "nava.png", "orgType": "For-profit", "productDetails": "AI tool for navigators to answer benefits questions; case manager support", "payer": "Philanthropy"},
+            {"name": "Nava", "logo": "nava.png", "orgType": "For-profit", "productDetails": "Full suite of services supporting end-to-end systems for benefits", "payer": "Government"},
+            {"name": "WorkMoney", "logo": "workmoney.jpg", "orgType": "Non-Profit", "productDetails": "Screening and referral across multiple benefit types", "payer": "Philanthropy"},
+            {"name": "SaverLife", "logo": "saverlife.png", "orgType": "Non-Profit", "productDetails": "Provides light referrals to other benefits", "payer": "Philanthropy"},
+            {"name": "Benefits Kitchen", "logo": "benefitkitchen.png", "orgType": "For-Profit", "productDetails": "Back-end rules engine for benefits across multiple programs", "payer": "Various"},
+            {"name": "US Digital Response", "logo": "usdr.png", "orgType": "Non-Profit", "productDetails": "Works directly with governments to improve business processes", "payer": "Philanthropy"},
+            {"name": "New America", "logo": "newamerica.png", "orgType": "Non-Profit", "productDetails": "Works directly with governments on tax credit and PFMLA processes", "payer": "Philanthropy"},
+            {"name": "Civilla", "logo": "civilla.jpg", "orgType": "Non-Profit", "productDetails": "Works directly with governments to improve application processes", "payer": "Philanthropy"},
+            {"name": "Code for America", "logo": "codeforamerica.png", "orgType": "Non-Profit", "productDetails": "Works directly with governments to improve benefits access processes", "payer": "Philanthropy"},
+            {"name": "Link Health", "logo": "linkhealth.webp", "orgType": "Non-Profit", "productDetails": "Benefits navigation by hospital staff across multiple programs", "payer": "Philanthropy"},
+            {"name": "Unite Us", "logo": "uniteus.png", "orgType": "For-Profit", "productDetails": "SAAS to connect hospitals and CBOs with screening and referral", "payer": "Health"},
+            {"name": "Amplifi", "logo": "amplifi.jpg", "orgType": "Non-Profit", "productDetails": "Benefits navigation across multiple programs", "payer": "Philanthropy"},
+            {"name": "Advocatia", "logo": "advocatia.png", "orgType": "For-Profit", "productDetails": "Screening and referral tool connecting hospitals and CBOs", "payer": "Health"},
+            {"name": "Aidkit", "logo": "aidkit.png", "orgType": "For-Profit", "productDetails": "Operator of an online benefits enrollment platform", "payer": "Government"},
+            {"name": "TorchTech", "logo": "torchtech.png", "orgType": "For-Profit", "productDetails": "Creating tools for benefits delivery and process improvement", "payer": "Various"},
+            {"name": "Impactica Labs", "logo": "impactica.avif", "orgType": "For-Profit", "productDetails": "Digital outreach solutions for government", "payer": "Nonprofit"},
+            {"name": "Thrivelink", "logo": "thrivelink.jpg", "orgType": "For-Profit", "productDetails": "ThriveLink empowers families to sign up for benefits", "payer": "Health"},
+            {"name": "FindHelp", "logo": "findhelp.webp", "orgType": "For-Profit", "productDetails": "Closed-loop referral platform used by health and social service organizations", "payer": "Ads / FinTech Referral"},
+            {"name": "Lulo", "logo": "lulo.jpg", "orgType": "For-Profit", "productDetails": "Understand which foods are WIC eligible", "payer": "Ads / FinTech Referral"},
+            {"name": "OneDegree", "logo": "onedegree.png", "orgType": "Non-Profit", "productDetails": "Tech platform connecting people with resources", "payer": "Philanthropy"},
+            {"name": "CommunityConnect Labs", "logo": "communityconnectlabs.png", "orgType": "For-Profit", "productDetails": "Digital outreach solutions for government", "payer": "Government"},
+            {"name": "VisionLink", "logo": "visionlink.png", "orgType": "For-Profit", "productDetails": "Creating tools to be used by others for screening", "payer": "Nonprofit"},
+            {"name": "Caseworthy", "logo": "caseworthy.avif", "orgType": "For-Profit", "productDetails": "Enterprise software platform for social services", "payer": "Nonprofit"},
+            {"name": "Frontline Justice", "logo": "frontlinejustice.png", "orgType": "Non-Profit", "productDetails": "Creates community justice worker support tools", "payer": "Philanthropy"},
+            {"name": "Promise Pay", "logo": "promisepay.jpg", "orgType": "For-Profit", "productDetails": "Modernizes how governments collect payments", "payer": "Government"},
+            {"name": "Papa.com", "logo": "papa.svg", "orgType": "For-Profit", "productDetails": "Benefits navigation / SDOH organization offering companionship", "payer": "Insurers"},
+            {"name": "Cityblock Health", "logo": "cityblockhealth.avif", "orgType": "For-Profit", "productDetails": "Have navigator staff that help connect people to benefits", "payer": "Insurers"},
+            {"name": "Activate Care", "logo": "activatecare.png", "orgType": "For-Profit", "productDetails": "CareLink is a community health platform", "payer": "Health"},
+            {"name": "Pair Team", "logo": "pairteam.jpg", "orgType": "For-Profit", "productDetails": "Provider of healthcare coordination services", "payer": "Health"},
+            {"name": "Pear Suite", "logo": "pearsuite.jpg", "orgType": "For-Profit", "productDetails": "SAAS to connect hospitals and CBOs", "payer": "Health"},
+            {"name": "Wellsky", "logo": "wellsky.jpg", "orgType": "For-Profit", "productDetails": "SAAS to connect hospitals and CBOs", "payer": "Health"},
+            {"name": "Zocalo Health", "logo": "zocalohealth.png", "orgType": "For-Profit", "productDetails": "Promotoras; consumer-facing platform for Medicaid eligible populations", "payer": "Health"},
+            {"name": "Fortuna Health", "logo": "fortunahealth.jpg", "orgType": "For-Profit", "productDetails": "Consumer-facing platform for Medicaid navigation", "payer": "Insurers"}
+        ];
+        
+        let sortColumn = 'name';
+        let sortDirection = 'asc';
+        let filteredData = organizationsData;
+        
+        function updateStats() {
+            const forProfit = filteredData.filter(org => org.orgType.toLowerCase().includes('for-profit')).length;
+            const nonProfit = filteredData.filter(org => org.orgType.toLowerCase().includes('non-profit')).length;
+            
+            document.getElementById('stats').innerHTML = `
+                <div class="stat">
+                    <div class="stat-label">Total Organizations</div>
+                    <div class="stat-value">${filteredData.length}</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">For-Profit</div>
+                    <div class="stat-value">${forProfit}</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Non-Profit</div>
+                    <div class="stat-value">${nonProfit}</div>
+                </div>
+            `;
+        }
+        
+        function renderTable() {
+            const sorted = [...filteredData].sort((a, b) => {
+                let aVal = a[sortColumn] || '';
+                let bVal = b[sortColumn] || '';
+                
+                if (typeof aVal === 'string') {
+                    aVal = aVal.toLowerCase();
+                    bVal = bVal.toLowerCase();
+                }
+                
+                if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+                if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+                return 0;
+            });
+            
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            sorted.forEach(org => {
+                const row = document.createElement('tr');
+                
+                const orgTypeClass = org.orgType.toLowerCase().includes('for-profit') ? 'for-profit' : 'non-profit';
+                
+                row.innerHTML = `
+                    <td class="logo-cell"><img src="logos/${org.logo}" alt="${org.name}"></td>
+                    <td class="org-name">${org.name}</td>
+                    <td><span class="org-type ${orgTypeClass}">${org.orgType}</span></td>
+                    <td class="product-details">${org.productDetails}</td>
+                    <td class="payer">${org.payer}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            // Update sort indicators
+            document.querySelectorAll('th[data-column]').forEach(th => {
+                th.classList.remove('sorted-asc', 'sorted-desc');
+                if (th.dataset.column === sortColumn) {
+                    th.classList.add(sortDirection === 'asc' ? 'sorted-asc' : 'sorted-desc');
+                }
+            });
+            
+            updateStats();
+        }
+        
+        function handleSort(column) {
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+            renderTable();
+        }
+        
+        function handleSearch(searchTerm) {
+            const term = searchTerm.toLowerCase();
+            
+            if (term === '') {
+                filteredData = organizationsData;
+            } else {
+                filteredData = organizationsData.filter(org => {
+                    return org.name.toLowerCase().includes(term) ||
+                           org.orgType.toLowerCase().includes(term) ||
+                           org.productDetails.toLowerCase().includes(term) ||
+                           org.payer.toLowerCase().includes(term);
+                });
+            }
+            
+            renderTable();
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTable();
+            
+            // Add click handlers to table headers
+            document.querySelectorAll('th[data-column]').forEach(th => {
+                th.addEventListener('click', () => handleSort(th.dataset.column));
+            });
+            
+            // Add search handler
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', (e) => handleSearch(e.target.value));
+        });
+    </script>
+</body>
+</html>

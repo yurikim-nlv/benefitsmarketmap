@@ -1,0 +1,2779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benefits Access - Benefit × User Journey Matrix</title>
+    <style>
+        :root {
+            /* Easy tweaking variables */
+            --logo-size: 40px;           /* Smaller to fit more in cells */
+            --logo-gap: 6px;             /* Tight spacing */
+            --cell-padding: 10px;
+            --header-height: 100px;
+            --label-width: 140px;        /* Slightly wider for counts */
+            --border-color: #e0e0e0;
+            --header-bg: #f8f9fa;
+            --label-bg: #f8f9fa;
+            --text-color: #2c3e50;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            padding: 40px 20px;
+            background: #ffffff;
+        }
+        
+        .container {
+            max-width: 2000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--text-color);
+            margin-bottom: 40px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .matrix-wrapper {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: var(--label-width) repeat(7, 1fr);
+            min-width: 1400px;
+        }
+        
+        .matrix-cell {
+            border: 1px solid var(--border-color);
+            padding: var(--cell-padding);
+            min-height: 80px;
+        }
+        
+        /* Header row */
+        .header-cell {
+            background: var(--header-bg);
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            padding: 15px 8px;
+            min-height: var(--header-height);
+        }
+        
+        .header-label {
+            margin-bottom: 4px;
+        }
+        
+        .header-count {
+            font-size: 11px;
+            color: #6c757d;
+            font-weight: normal;
+        }
+        
+        .corner-cell {
+            background: var(--header-bg);
+            border: 1px solid var(--border-color);
+        }
+        
+        /* Label column */
+        .label-cell {
+            background: var(--label-bg);
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+        
+        .label-name {
+            margin-bottom: 2px;
+        }
+        
+        .label-count {
+            font-size: 11px;
+            color: #6c757d;
+            font-weight: normal;
+        }
+        
+        /* Content cells */
+        .content-cell {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--logo-gap);
+            align-content: flex-start;
+        }
+        
+        .logo-item {
+            width: var(--logo-size);
+            height: var(--logo-size);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            flex-shrink: 0;
+        }
+        
+        .logo-item img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .logo-item:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .tooltip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.9);
+        }
+        
+        .empty-cell {
+            color: #ccc;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .count-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        
+        .content-cell {
+            position: relative;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            :root {
+                --logo-size: 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Benefits Access Matrix: Benefit Type × User Journey Stage</h1>
+        <div class="matrix-wrapper">
+            <div class="matrix-grid">
+                <!-- Header row -->
+                <div class="matrix-cell corner-cell"></div>
+
+                <div class="matrix-cell header-cell">
+                    <div class="header-label">Discover / Decide</div>
+                    <div class="header-count">(31)</div>
+                </div>
+
+                <div class="matrix-cell header-cell">
+                    <div class="header-label">Apply / Verify</div>
+                    <div class="header-count">(26)</div>
+                </div>
+
+                <div class="matrix-cell header-cell">
+                    <div class="header-label">Process / Determine</div>
+                    <div class="header-count">(17)</div>
+                </div>
+
+                <div class="matrix-cell header-cell">
+                    <div class="header-label">Use</div>
+                    <div class="header-count">(12)</div>
+                </div>
+
+                <div class="matrix-cell header-cell">
+                    <div class="header-label">Maintain / Renew</div>
+                    <div class="header-count">(16)</div>
+                </div>
+
+                <div class="matrix-cell header-cell">
+                    <div class="header-label">Appeal</div>
+                    <div class="header-count">(2)</div>
+                </div>
+
+                <div class="matrix-cell header-cell">
+                    <div class="header-label">Infrastructure</div>
+                    <div class="header-count">(11)</div>
+                </div>
+
+                <div class="matrix-cell label-cell">
+                    <div class="label-name">SNAP</div>
+                    <div class="label-count">(42)</div>
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">27</span>
+
+                    <div class="logo-item">
+                        <img src="logos/frontdoorbenefits.webp" alt="FrontDoor Benefits" />
+                        <div class="tooltip">FrontDoor Benefits</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/myfriendben.webp" alt="MyFriendBen" />
+                        <div class="tooltip">MyFriendBen</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/mrelief.svg" alt="mRelief" />
+                        <div class="tooltip">mRelief</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/starlight.webp" alt="Starlight" />
+                        <div class="tooltip">Starlight</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/snapscreener.png" alt="SNAPScreener" />
+                        <div class="tooltip">SNAPScreener</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/singlestop.jpg" alt="Single Stop USA" />
+                        <div class="tooltip">Single Stop USA</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/studentbasicneedscoalition.png" alt="Student Basic Needs Coalition" />
+                        <div class="tooltip">Student Basic Needs Coalition</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava Labs" />
+                        <div class="tooltip">Nava Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/workmoney.jpg" alt="WorkMoney" />
+                        <div class="tooltip">WorkMoney</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/saverlife.png" alt="SaverLife" />
+                        <div class="tooltip">SaverLife</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/linkhealth.webp" alt="Link Health" />
+                        <div class="tooltip">Link Health</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/uniteus.png" alt="Unite Us" />
+                        <div class="tooltip">Unite Us</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/amplifi.jpg" alt="Amplifi (FKA ImagineLA)" />
+                        <div class="tooltip">Amplifi (FKA ImagineLA)</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/torchtech.png" alt="TorchTech" />
+                        <div class="tooltip">TorchTech</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/impactica.avif" alt="Impactica Labs" />
+                        <div class="tooltip">Impactica Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/thrivelink.jpg" alt="Thrivelink" />
+                        <div class="tooltip">Thrivelink</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/findhelp.webp" alt="FindHelp" />
+                        <div class="tooltip">FindHelp</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/onedegree.png" alt="OneDegree" />
+                        <div class="tooltip">OneDegree</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/visionlink.png" alt="VisionLink" />
+                        <div class="tooltip">VisionLink</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/caseworthy.avif" alt="Caseworthy" />
+                        <div class="tooltip">Caseworthy</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/cityblockhealth.avif" alt="Cityblock Health" />
+                        <div class="tooltip">Cityblock Health</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/activatecare.png" alt="Activate Care" />
+                        <div class="tooltip">Activate Care</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/pairteam.jpg" alt="Pair Team" />
+                        <div class="tooltip">Pair Team</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/pearsuite.jpg" alt="Pear Suite" />
+                        <div class="tooltip">Pear Suite</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/wellsky.jpg" alt="Wellsky" />
+                        <div class="tooltip">Wellsky</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/zocalohealth.png" alt="Zocalo Health" />
+                        <div class="tooltip">Zocalo Health</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/fortunahealth.jpg" alt="Fortuna Health" />
+                        <div class="tooltip">Fortuna Health</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">22</span>
+
+                    <div class="logo-item">
+                        <img src="logos/frontdoorbenefits.webp" alt="FrontDoor Benefits" />
+                        <div class="tooltip">FrontDoor Benefits</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/mrelief.svg" alt="mRelief" />
+                        <div class="tooltip">mRelief</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/starlight.webp" alt="Starlight" />
+                        <div class="tooltip">Starlight</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/singlestop.jpg" alt="Single Stop USA" />
+                        <div class="tooltip">Single Stop USA</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/studentbasicneedscoalition.png" alt="Student Basic Needs Coalition" />
+                        <div class="tooltip">Student Basic Needs Coalition</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava Labs" />
+                        <div class="tooltip">Nava Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/workmoney.jpg" alt="WorkMoney" />
+                        <div class="tooltip">WorkMoney</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/saverlife.png" alt="SaverLife" />
+                        <div class="tooltip">SaverLife</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/linkhealth.webp" alt="Link Health" />
+                        <div class="tooltip">Link Health</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/amplifi.jpg" alt="Amplifi (FKA ImagineLA)" />
+                        <div class="tooltip">Amplifi (FKA ImagineLA)</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/impactica.avif" alt="Impactica Labs" />
+                        <div class="tooltip">Impactica Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/thrivelink.jpg" alt="Thrivelink" />
+                        <div class="tooltip">Thrivelink</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/onedegree.png" alt="OneDegree" />
+                        <div class="tooltip">OneDegree</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/visionlink.png" alt="VisionLink" />
+                        <div class="tooltip">VisionLink</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/caseworthy.avif" alt="Caseworthy" />
+                        <div class="tooltip">Caseworthy</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/cityblockhealth.avif" alt="Cityblock Health" />
+                        <div class="tooltip">Cityblock Health</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/activatecare.png" alt="Activate Care" />
+                        <div class="tooltip">Activate Care</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/pairteam.jpg" alt="Pair Team" />
+                        <div class="tooltip">Pair Team</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/pearsuite.jpg" alt="Pear Suite" />
+                        <div class="tooltip">Pear Suite</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/wellsky.jpg" alt="Wellsky" />
+                        <div class="tooltip">Wellsky</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/zocalohealth.png" alt="Zocalo Health" />
+                        <div class="tooltip">Zocalo Health</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/fortunahealth.jpg" alt="Fortuna Health" />
+                        <div class="tooltip">Fortuna Health</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">12</span>
+
+                    <div class="logo-item">
+                        <img src="logos/frontdoorbenefits.webp" alt="FrontDoor Benefits" />
+                        <div class="tooltip">FrontDoor Benefits</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/digitalpublicworks.avif" alt="Digital Public Works" />
+                        <div class="tooltip">Digital Public Works</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/steadyiq.svg" alt="SteadyIQ" />
+                        <div class="tooltip">SteadyIQ</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/semicolondesigngroup.jpg" alt="Semicolon Design Group" />
+                        <div class="tooltip">Semicolon Design Group</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/publicpolicylab.png" alt="Public Policy Lab" />
+                        <div class="tooltip">Public Policy Lab</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava Labs" />
+                        <div class="tooltip">Nava Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava" />
+                        <div class="tooltip">Nava</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/usdr.png" alt="US Digital Response" />
+                        <div class="tooltip">US Digital Response</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/civilla.jpg" alt="Civilla" />
+                        <div class="tooltip">Civilla</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/codeforamerica.png" alt="Code for America" />
+                        <div class="tooltip">Code for America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/communityconnectlabs.png" alt="CommunityConnect Labs" />
+                        <div class="tooltip">CommunityConnect Labs</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">9</span>
+
+                    <div class="logo-item">
+                        <img src="logos/semicolondesigngroup.jpg" alt="Semicolon Design Group" />
+                        <div class="tooltip">Semicolon Design Group</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/publicpolicylab.png" alt="Public Policy Lab" />
+                        <div class="tooltip">Public Policy Lab</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/propel.png" alt="Propel" />
+                        <div class="tooltip">Propel</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava Labs" />
+                        <div class="tooltip">Nava Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava" />
+                        <div class="tooltip">Nava</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/usdr.png" alt="US Digital Response" />
+                        <div class="tooltip">US Digital Response</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/civilla.jpg" alt="Civilla" />
+                        <div class="tooltip">Civilla</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/codeforamerica.png" alt="Code for America" />
+                        <div class="tooltip">Code for America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">12</span>
+
+                    <div class="logo-item">
+                        <img src="logos/digitalpublicworks.avif" alt="Digital Public Works" />
+                        <div class="tooltip">Digital Public Works</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/steadyiq.svg" alt="SteadyIQ" />
+                        <div class="tooltip">SteadyIQ</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/semicolondesigngroup.jpg" alt="Semicolon Design Group" />
+                        <div class="tooltip">Semicolon Design Group</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/publicpolicylab.png" alt="Public Policy Lab" />
+                        <div class="tooltip">Public Policy Lab</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava Labs" />
+                        <div class="tooltip">Nava Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava" />
+                        <div class="tooltip">Nava</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/usdr.png" alt="US Digital Response" />
+                        <div class="tooltip">US Digital Response</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/civilla.jpg" alt="Civilla" />
+                        <div class="tooltip">Civilla</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/codeforamerica.png" alt="Code for America" />
+                        <div class="tooltip">Code for America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/communityconnectlabs.png" alt="CommunityConnect Labs" />
+                        <div class="tooltip">CommunityConnect Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/fortunahealth.jpg" alt="Fortuna Health" />
+                        <div class="tooltip">Fortuna Health</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">1</span>
+
+                    <div class="logo-item">
+                        <img src="logos/frontlinejustice.png" alt="Frontline Justice" />
+                        <div class="tooltip">Frontline Justice</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">9</span>
+
+                    <div class="logo-item">
+                        <img src="logos/policyengine.webp" alt="PolicyEngine" />
+                        <div class="tooltip">PolicyEngine</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava" />
+                        <div class="tooltip">Nava</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/benefitkitchen.png" alt="Benefits Kitchen" />
+                        <div class="tooltip">Benefits Kitchen</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/usdr.png" alt="US Digital Response" />
+                        <div class="tooltip">US Digital Response</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/civilla.jpg" alt="Civilla" />
+                        <div class="tooltip">Civilla</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/codeforamerica.png" alt="Code for America" />
+                        <div class="tooltip">Code for America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/advocatia.png" alt="Advocatia" />
+                        <div class="tooltip">Advocatia</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/impactica.avif" alt="Impactica Labs" />
+                        <div class="tooltip">Impactica Labs</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell label-cell">
+                    <div class="label-name">WIC</div>
+                    <div class="label-count">(27)</div>
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">21</span>
+
+                    <div class="logo-item">
+                        <img src="logos/myfriendben.webp" alt="MyFriendBen" />
+                        <div class="tooltip">MyFriendBen</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nationalwicassociation.jpg" alt="National WIC Association" />
+                        <div class="tooltip">National WIC Association</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/singlestop.jpg" alt="Single Stop USA" />
+                        <div class="tooltip">Single Stop USA</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava Labs" />
+                        <div class="tooltip">Nava Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/workmoney.jpg" alt="WorkMoney" />
+                        <div class="tooltip">WorkMoney</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/saverlife.png" alt="SaverLife" />
+                        <div class="tooltip">SaverLife</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/linkhealth.webp" alt="Link Health" />
+                        <div class="tooltip">Link Health</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/uniteus.png" alt="Unite Us" />
+                        <div class="tooltip">Unite Us</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/amplifi.jpg" alt="Amplifi (FKA ImagineLA)" />
+                        <div class="tooltip">Amplifi (FKA ImagineLA)</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/torchtech.png" alt="TorchTech" />
+                        <div class="tooltip">TorchTech</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/findhelp.webp" alt="FindHelp" />
+                        <div class="tooltip">FindHelp</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/onedegree.png" alt="OneDegree" />
+                        <div class="tooltip">OneDegree</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/visionlink.png" alt="VisionLink" />
+                        <div class="tooltip">VisionLink</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/caseworthy.avif" alt="Caseworthy" />
+                        <div class="tooltip">Caseworthy</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/cityblockhealth.avif" alt="Cityblock Health" />
+                        <div class="tooltip">Cityblock Health</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/activatecare.png" alt="Activate Care" />
+                        <div class="tooltip">Activate Care</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/pairteam.jpg" alt="Pair Team" />
+                        <div class="tooltip">Pair Team</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/pearsuite.jpg" alt="Pear Suite" />
+                        <div class="tooltip">Pear Suite</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/wellsky.jpg" alt="Wellsky" />
+                        <div class="tooltip">Wellsky</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/zocalohealth.png" alt="Zocalo Health" />
+                        <div class="tooltip">Zocalo Health</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/fortunahealth.jpg" alt="Fortuna Health" />
+                        <div class="tooltip">Fortuna Health</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">16</span>
+
+                    <div class="logo-item">
+                        <img src="logos/singlestop.jpg" alt="Single Stop USA" />
+                        <div class="tooltip">Single Stop USA</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava Labs" />
+                        <div class="tooltip">Nava Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/workmoney.jpg" alt="WorkMoney" />
+                        <div class="tooltip">WorkMoney</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/saverlife.png" alt="SaverLife" />
+                        <div class="tooltip">SaverLife</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/linkhealth.webp" alt="Link Health" />
+                        <div class="tooltip">Link Health</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/amplifi.jpg" alt="Amplifi (FKA ImagineLA)" />
+                        <div class="tooltip">Amplifi (FKA ImagineLA)</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/onedegree.png" alt="OneDegree" />
+                        <div class="tooltip">OneDegree</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/visionlink.png" alt="VisionLink" />
+                        <div class="tooltip">VisionLink</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/caseworthy.avif" alt="Caseworthy" />
+                        <div class="tooltip">Caseworthy</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/cityblockhealth.avif" alt="Cityblock Health" />
+                        <div class="tooltip">Cityblock Health</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/activatecare.png" alt="Activate Care" />
+                        <div class="tooltip">Activate Care</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/pairteam.jpg" alt="Pair Team" />
+                        <div class="tooltip">Pair Team</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/pearsuite.jpg" alt="Pear Suite" />
+                        <div class="tooltip">Pear Suite</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/wellsky.jpg" alt="Wellsky" />
+                        <div class="tooltip">Wellsky</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/zocalohealth.png" alt="Zocalo Health" />
+                        <div class="tooltip">Zocalo Health</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/fortunahealth.jpg" alt="Fortuna Health" />
+                        <div class="tooltip">Fortuna Health</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">3</span>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava" />
+                        <div class="tooltip">Nava</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/codeforamerica.png" alt="Code for America" />
+                        <div class="tooltip">Code for America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">4</span>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava" />
+                        <div class="tooltip">Nava</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/codeforamerica.png" alt="Code for America" />
+                        <div class="tooltip">Code for America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/lulo.jpg" alt="Lulo" />
+                        <div class="tooltip">Lulo</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">4</span>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava" />
+                        <div class="tooltip">Nava</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/codeforamerica.png" alt="Code for America" />
+                        <div class="tooltip">Code for America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/fortunahealth.jpg" alt="Fortuna Health" />
+                        <div class="tooltip">Fortuna Health</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell empty-cell">—</div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">5</span>
+
+                    <div class="logo-item">
+                        <img src="logos/policyengine.webp" alt="PolicyEngine" />
+                        <div class="tooltip">PolicyEngine</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava" />
+                        <div class="tooltip">Nava</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/benefitkitchen.png" alt="Benefits Kitchen" />
+                        <div class="tooltip">Benefits Kitchen</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/codeforamerica.png" alt="Code for America" />
+                        <div class="tooltip">Code for America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell label-cell">
+                    <div class="label-name">UI</div>
+                    <div class="label-count">(14)</div>
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">7</span>
+
+                    <div class="logo-item">
+                        <img src="logos/myfriendben.webp" alt="MyFriendBen" />
+                        <div class="tooltip">MyFriendBen</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/singlestop.jpg" alt="Single Stop USA" />
+                        <div class="tooltip">Single Stop USA</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/workmoney.jpg" alt="WorkMoney" />
+                        <div class="tooltip">WorkMoney</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/saverlife.png" alt="SaverLife" />
+                        <div class="tooltip">SaverLife</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/torchtech.png" alt="TorchTech" />
+                        <div class="tooltip">TorchTech</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/findhelp.webp" alt="FindHelp" />
+                        <div class="tooltip">FindHelp</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/caseworthy.avif" alt="Caseworthy" />
+                        <div class="tooltip">Caseworthy</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">4</span>
+
+                    <div class="logo-item">
+                        <img src="logos/singlestop.jpg" alt="Single Stop USA" />
+                        <div class="tooltip">Single Stop USA</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/workmoney.jpg" alt="WorkMoney" />
+                        <div class="tooltip">WorkMoney</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/saverlife.png" alt="SaverLife" />
+                        <div class="tooltip">SaverLife</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/caseworthy.avif" alt="Caseworthy" />
+                        <div class="tooltip">Caseworthy</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">5</span>
+
+                    <div class="logo-item">
+                        <img src="logos/semicolondesigngroup.jpg" alt="Semicolon Design Group" />
+                        <div class="tooltip">Semicolon Design Group</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava" />
+                        <div class="tooltip">Nava</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/usdr.png" alt="US Digital Response" />
+                        <div class="tooltip">US Digital Response</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/codeforamerica.png" alt="Code for America" />
+                        <div class="tooltip">Code for America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">5</span>
+
+                    <div class="logo-item">
+                        <img src="logos/semicolondesigngroup.jpg" alt="Semicolon Design Group" />
+                        <div class="tooltip">Semicolon Design Group</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava" />
+                        <div class="tooltip">Nava</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/usdr.png" alt="US Digital Response" />
+                        <div class="tooltip">US Digital Response</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/codeforamerica.png" alt="Code for America" />
+                        <div class="tooltip">Code for America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">5</span>
+
+                    <div class="logo-item">
+                        <img src="logos/semicolondesigngroup.jpg" alt="Semicolon Design Group" />
+                        <div class="tooltip">Semicolon Design Group</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava" />
+                        <div class="tooltip">Nava</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/usdr.png" alt="US Digital Response" />
+                        <div class="tooltip">US Digital Response</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/codeforamerica.png" alt="Code for America" />
+                        <div class="tooltip">Code for America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell empty-cell">—</div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">6</span>
+
+                    <div class="logo-item">
+                        <img src="logos/policyengine.webp" alt="PolicyEngine" />
+                        <div class="tooltip">PolicyEngine</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava" />
+                        <div class="tooltip">Nava</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/benefitkitchen.png" alt="Benefits Kitchen" />
+                        <div class="tooltip">Benefits Kitchen</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/usdr.png" alt="US Digital Response" />
+                        <div class="tooltip">US Digital Response</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/codeforamerica.png" alt="Code for America" />
+                        <div class="tooltip">Code for America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell label-cell">
+                    <div class="label-name">SSDI</div>
+                    <div class="label-count">(12)</div>
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">9</span>
+
+                    <div class="logo-item">
+                        <img src="logos/myfriendben.webp" alt="MyFriendBen" />
+                        <div class="tooltip">MyFriendBen</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/singlestop.jpg" alt="Single Stop USA" />
+                        <div class="tooltip">Single Stop USA</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/benny.png" alt="Benny" />
+                        <div class="tooltip">Benny</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/workmoney.jpg" alt="WorkMoney" />
+                        <div class="tooltip">WorkMoney</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/saverlife.png" alt="SaverLife" />
+                        <div class="tooltip">SaverLife</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/torchtech.png" alt="TorchTech" />
+                        <div class="tooltip">TorchTech</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/findhelp.webp" alt="FindHelp" />
+                        <div class="tooltip">FindHelp</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/visionlink.png" alt="VisionLink" />
+                        <div class="tooltip">VisionLink</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/caseworthy.avif" alt="Caseworthy" />
+                        <div class="tooltip">Caseworthy</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">6</span>
+
+                    <div class="logo-item">
+                        <img src="logos/singlestop.jpg" alt="Single Stop USA" />
+                        <div class="tooltip">Single Stop USA</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/benny.png" alt="Benny" />
+                        <div class="tooltip">Benny</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/workmoney.jpg" alt="WorkMoney" />
+                        <div class="tooltip">WorkMoney</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/saverlife.png" alt="SaverLife" />
+                        <div class="tooltip">SaverLife</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/visionlink.png" alt="VisionLink" />
+                        <div class="tooltip">VisionLink</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/caseworthy.avif" alt="Caseworthy" />
+                        <div class="tooltip">Caseworthy</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">2</span>
+
+                    <div class="logo-item">
+                        <img src="logos/benny.png" alt="Benny" />
+                        <div class="tooltip">Benny</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">1</span>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">1</span>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">1</span>
+
+                    <div class="logo-item">
+                        <img src="logos/benny.png" alt="Benny" />
+                        <div class="tooltip">Benny</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">3</span>
+
+                    <div class="logo-item">
+                        <img src="logos/policyengine.webp" alt="PolicyEngine" />
+                        <div class="tooltip">PolicyEngine</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/benefitkitchen.png" alt="Benefits Kitchen" />
+                        <div class="tooltip">Benefits Kitchen</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell label-cell">
+                    <div class="label-name">Tax Credits</div>
+                    <div class="label-count">(13)</div>
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">7</span>
+
+                    <div class="logo-item">
+                        <img src="logos/myfriendben.webp" alt="MyFriendBen" />
+                        <div class="tooltip">MyFriendBen</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/singlestop.jpg" alt="Single Stop USA" />
+                        <div class="tooltip">Single Stop USA</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/workmoney.jpg" alt="WorkMoney" />
+                        <div class="tooltip">WorkMoney</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/saverlife.png" alt="SaverLife" />
+                        <div class="tooltip">SaverLife</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/amplifi.jpg" alt="Amplifi (FKA ImagineLA)" />
+                        <div class="tooltip">Amplifi (FKA ImagineLA)</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/torchtech.png" alt="TorchTech" />
+                        <div class="tooltip">TorchTech</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/onedegree.png" alt="OneDegree" />
+                        <div class="tooltip">OneDegree</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">5</span>
+
+                    <div class="logo-item">
+                        <img src="logos/singlestop.jpg" alt="Single Stop USA" />
+                        <div class="tooltip">Single Stop USA</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/workmoney.jpg" alt="WorkMoney" />
+                        <div class="tooltip">WorkMoney</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/saverlife.png" alt="SaverLife" />
+                        <div class="tooltip">SaverLife</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/amplifi.jpg" alt="Amplifi (FKA ImagineLA)" />
+                        <div class="tooltip">Amplifi (FKA ImagineLA)</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/onedegree.png" alt="OneDegree" />
+                        <div class="tooltip">OneDegree</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">4</span>
+
+                    <div class="logo-item">
+                        <img src="logos/newamerica.png" alt="New America" />
+                        <div class="tooltip">New America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/codeforamerica.png" alt="Code for America" />
+                        <div class="tooltip">Code for America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/communityconnectlabs.png" alt="CommunityConnect Labs" />
+                        <div class="tooltip">CommunityConnect Labs</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">3</span>
+
+                    <div class="logo-item">
+                        <img src="logos/newamerica.png" alt="New America" />
+                        <div class="tooltip">New America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/codeforamerica.png" alt="Code for America" />
+                        <div class="tooltip">Code for America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">4</span>
+
+                    <div class="logo-item">
+                        <img src="logos/newamerica.png" alt="New America" />
+                        <div class="tooltip">New America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/codeforamerica.png" alt="Code for America" />
+                        <div class="tooltip">Code for America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/communityconnectlabs.png" alt="CommunityConnect Labs" />
+                        <div class="tooltip">CommunityConnect Labs</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell empty-cell">—</div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">5</span>
+
+                    <div class="logo-item">
+                        <img src="logos/policyengine.webp" alt="PolicyEngine" />
+                        <div class="tooltip">PolicyEngine</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/benefitkitchen.png" alt="Benefits Kitchen" />
+                        <div class="tooltip">Benefits Kitchen</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/newamerica.png" alt="New America" />
+                        <div class="tooltip">New America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/codeforamerica.png" alt="Code for America" />
+                        <div class="tooltip">Code for America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell label-cell">
+                    <div class="label-name">PFMLA</div>
+                    <div class="label-count">(16)</div>
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">10</span>
+
+                    <div class="logo-item">
+                        <img src="logos/myfriendben.webp" alt="MyFriendBen" />
+                        <div class="tooltip">MyFriendBen</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/mirza.jpg" alt="Mirza" />
+                        <div class="tooltip">Mirza</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/singlestop.jpg" alt="Single Stop USA" />
+                        <div class="tooltip">Single Stop USA</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava Labs" />
+                        <div class="tooltip">Nava Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/workmoney.jpg" alt="WorkMoney" />
+                        <div class="tooltip">WorkMoney</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/saverlife.png" alt="SaverLife" />
+                        <div class="tooltip">SaverLife</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/amplifi.jpg" alt="Amplifi (FKA ImagineLA)" />
+                        <div class="tooltip">Amplifi (FKA ImagineLA)</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/torchtech.png" alt="TorchTech" />
+                        <div class="tooltip">TorchTech</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/visionlink.png" alt="VisionLink" />
+                        <div class="tooltip">VisionLink</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/caseworthy.avif" alt="Caseworthy" />
+                        <div class="tooltip">Caseworthy</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">8</span>
+
+                    <div class="logo-item">
+                        <img src="logos/mirza.jpg" alt="Mirza" />
+                        <div class="tooltip">Mirza</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/singlestop.jpg" alt="Single Stop USA" />
+                        <div class="tooltip">Single Stop USA</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava Labs" />
+                        <div class="tooltip">Nava Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/workmoney.jpg" alt="WorkMoney" />
+                        <div class="tooltip">WorkMoney</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/saverlife.png" alt="SaverLife" />
+                        <div class="tooltip">SaverLife</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/amplifi.jpg" alt="Amplifi (FKA ImagineLA)" />
+                        <div class="tooltip">Amplifi (FKA ImagineLA)</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/visionlink.png" alt="VisionLink" />
+                        <div class="tooltip">VisionLink</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/caseworthy.avif" alt="Caseworthy" />
+                        <div class="tooltip">Caseworthy</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">4</span>
+
+                    <div class="logo-item">
+                        <img src="logos/beam.png" alt="Beam" />
+                        <div class="tooltip">Beam</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava" />
+                        <div class="tooltip">Nava</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/newamerica.png" alt="New America" />
+                        <div class="tooltip">New America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">4</span>
+
+                    <div class="logo-item">
+                        <img src="logos/beam.png" alt="Beam" />
+                        <div class="tooltip">Beam</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava" />
+                        <div class="tooltip">Nava</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/newamerica.png" alt="New America" />
+                        <div class="tooltip">New America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">5</span>
+
+                    <div class="logo-item">
+                        <img src="logos/beam.png" alt="Beam" />
+                        <div class="tooltip">Beam</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/mirza.jpg" alt="Mirza" />
+                        <div class="tooltip">Mirza</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava" />
+                        <div class="tooltip">Nava</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/newamerica.png" alt="New America" />
+                        <div class="tooltip">New America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell empty-cell">—</div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">5</span>
+
+                    <div class="logo-item">
+                        <img src="logos/policyengine.webp" alt="PolicyEngine" />
+                        <div class="tooltip">PolicyEngine</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava" />
+                        <div class="tooltip">Nava</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/benefitkitchen.png" alt="Benefits Kitchen" />
+                        <div class="tooltip">Benefits Kitchen</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/newamerica.png" alt="New America" />
+                        <div class="tooltip">New America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell label-cell">
+                    <div class="label-name">Medicaid</div>
+                    <div class="label-count">(31)</div>
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">21</span>
+
+                    <div class="logo-item">
+                        <img src="logos/myfriendben.webp" alt="MyFriendBen" />
+                        <div class="tooltip">MyFriendBen</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/singlestop.jpg" alt="Single Stop USA" />
+                        <div class="tooltip">Single Stop USA</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava Labs" />
+                        <div class="tooltip">Nava Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/workmoney.jpg" alt="WorkMoney" />
+                        <div class="tooltip">WorkMoney</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/saverlife.png" alt="SaverLife" />
+                        <div class="tooltip">SaverLife</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/linkhealth.webp" alt="Link Health" />
+                        <div class="tooltip">Link Health</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/uniteus.png" alt="Unite Us" />
+                        <div class="tooltip">Unite Us</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/amplifi.jpg" alt="Amplifi (FKA ImagineLA)" />
+                        <div class="tooltip">Amplifi (FKA ImagineLA)</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/torchtech.png" alt="TorchTech" />
+                        <div class="tooltip">TorchTech</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/thrivelink.jpg" alt="Thrivelink" />
+                        <div class="tooltip">Thrivelink</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/onedegree.png" alt="OneDegree" />
+                        <div class="tooltip">OneDegree</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/visionlink.png" alt="VisionLink" />
+                        <div class="tooltip">VisionLink</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/caseworthy.avif" alt="Caseworthy" />
+                        <div class="tooltip">Caseworthy</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/papa.svg" alt="Papa.com" />
+                        <div class="tooltip">Papa.com</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/cityblockhealth.avif" alt="Cityblock Health" />
+                        <div class="tooltip">Cityblock Health</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/activatecare.png" alt="Activate Care" />
+                        <div class="tooltip">Activate Care</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/pairteam.jpg" alt="Pair Team" />
+                        <div class="tooltip">Pair Team</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/pearsuite.jpg" alt="Pear Suite" />
+                        <div class="tooltip">Pear Suite</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/wellsky.jpg" alt="Wellsky" />
+                        <div class="tooltip">Wellsky</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/zocalohealth.png" alt="Zocalo Health" />
+                        <div class="tooltip">Zocalo Health</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/fortunahealth.jpg" alt="Fortuna Health" />
+                        <div class="tooltip">Fortuna Health</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">18</span>
+
+                    <div class="logo-item">
+                        <img src="logos/singlestop.jpg" alt="Single Stop USA" />
+                        <div class="tooltip">Single Stop USA</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava Labs" />
+                        <div class="tooltip">Nava Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/workmoney.jpg" alt="WorkMoney" />
+                        <div class="tooltip">WorkMoney</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/saverlife.png" alt="SaverLife" />
+                        <div class="tooltip">SaverLife</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/linkhealth.webp" alt="Link Health" />
+                        <div class="tooltip">Link Health</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/amplifi.jpg" alt="Amplifi (FKA ImagineLA)" />
+                        <div class="tooltip">Amplifi (FKA ImagineLA)</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/thrivelink.jpg" alt="Thrivelink" />
+                        <div class="tooltip">Thrivelink</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/onedegree.png" alt="OneDegree" />
+                        <div class="tooltip">OneDegree</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/visionlink.png" alt="VisionLink" />
+                        <div class="tooltip">VisionLink</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/caseworthy.avif" alt="Caseworthy" />
+                        <div class="tooltip">Caseworthy</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/papa.svg" alt="Papa.com" />
+                        <div class="tooltip">Papa.com</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/cityblockhealth.avif" alt="Cityblock Health" />
+                        <div class="tooltip">Cityblock Health</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/activatecare.png" alt="Activate Care" />
+                        <div class="tooltip">Activate Care</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/pairteam.jpg" alt="Pair Team" />
+                        <div class="tooltip">Pair Team</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/pearsuite.jpg" alt="Pear Suite" />
+                        <div class="tooltip">Pear Suite</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/wellsky.jpg" alt="Wellsky" />
+                        <div class="tooltip">Wellsky</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/zocalohealth.png" alt="Zocalo Health" />
+                        <div class="tooltip">Zocalo Health</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/fortunahealth.jpg" alt="Fortuna Health" />
+                        <div class="tooltip">Fortuna Health</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">8</span>
+
+                    <div class="logo-item">
+                        <img src="logos/digitalpublicworks.avif" alt="Digital Public Works" />
+                        <div class="tooltip">Digital Public Works</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/steadyiq.svg" alt="SteadyIQ" />
+                        <div class="tooltip">SteadyIQ</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava Labs" />
+                        <div class="tooltip">Nava Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/usdr.png" alt="US Digital Response" />
+                        <div class="tooltip">US Digital Response</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/civilla.jpg" alt="Civilla" />
+                        <div class="tooltip">Civilla</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/codeforamerica.png" alt="Code for America" />
+                        <div class="tooltip">Code for America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/communityconnectlabs.png" alt="CommunityConnect Labs" />
+                        <div class="tooltip">CommunityConnect Labs</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">5</span>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava Labs" />
+                        <div class="tooltip">Nava Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/usdr.png" alt="US Digital Response" />
+                        <div class="tooltip">US Digital Response</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/civilla.jpg" alt="Civilla" />
+                        <div class="tooltip">Civilla</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/codeforamerica.png" alt="Code for America" />
+                        <div class="tooltip">Code for America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">9</span>
+
+                    <div class="logo-item">
+                        <img src="logos/digitalpublicworks.avif" alt="Digital Public Works" />
+                        <div class="tooltip">Digital Public Works</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/steadyiq.svg" alt="SteadyIQ" />
+                        <div class="tooltip">SteadyIQ</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava Labs" />
+                        <div class="tooltip">Nava Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/usdr.png" alt="US Digital Response" />
+                        <div class="tooltip">US Digital Response</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/civilla.jpg" alt="Civilla" />
+                        <div class="tooltip">Civilla</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/codeforamerica.png" alt="Code for America" />
+                        <div class="tooltip">Code for America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/communityconnectlabs.png" alt="CommunityConnect Labs" />
+                        <div class="tooltip">CommunityConnect Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/fortunahealth.jpg" alt="Fortuna Health" />
+                        <div class="tooltip">Fortuna Health</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell empty-cell">—</div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">7</span>
+
+                    <div class="logo-item">
+                        <img src="logos/policyengine.webp" alt="PolicyEngine" />
+                        <div class="tooltip">PolicyEngine</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/benefitkitchen.png" alt="Benefits Kitchen" />
+                        <div class="tooltip">Benefits Kitchen</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/usdr.png" alt="US Digital Response" />
+                        <div class="tooltip">US Digital Response</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/civilla.jpg" alt="Civilla" />
+                        <div class="tooltip">Civilla</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/codeforamerica.png" alt="Code for America" />
+                        <div class="tooltip">Code for America</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/advocatia.png" alt="Advocatia" />
+                        <div class="tooltip">Advocatia</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell label-cell">
+                    <div class="label-name">LIHEAP</div>
+                    <div class="label-count">(28)</div>
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">21</span>
+
+                    <div class="logo-item">
+                        <img src="logos/myfriendben.webp" alt="MyFriendBen" />
+                        <div class="tooltip">MyFriendBen</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/mirza.jpg" alt="Mirza" />
+                        <div class="tooltip">Mirza</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/singlestop.jpg" alt="Single Stop USA" />
+                        <div class="tooltip">Single Stop USA</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava Labs" />
+                        <div class="tooltip">Nava Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/workmoney.jpg" alt="WorkMoney" />
+                        <div class="tooltip">WorkMoney</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/saverlife.png" alt="SaverLife" />
+                        <div class="tooltip">SaverLife</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/uniteus.png" alt="Unite Us" />
+                        <div class="tooltip">Unite Us</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/amplifi.jpg" alt="Amplifi (FKA ImagineLA)" />
+                        <div class="tooltip">Amplifi (FKA ImagineLA)</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/torchtech.png" alt="TorchTech" />
+                        <div class="tooltip">TorchTech</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/thrivelink.jpg" alt="Thrivelink" />
+                        <div class="tooltip">Thrivelink</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/findhelp.webp" alt="FindHelp" />
+                        <div class="tooltip">FindHelp</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/onedegree.png" alt="OneDegree" />
+                        <div class="tooltip">OneDegree</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/visionlink.png" alt="VisionLink" />
+                        <div class="tooltip">VisionLink</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/caseworthy.avif" alt="Caseworthy" />
+                        <div class="tooltip">Caseworthy</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/cityblockhealth.avif" alt="Cityblock Health" />
+                        <div class="tooltip">Cityblock Health</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/activatecare.png" alt="Activate Care" />
+                        <div class="tooltip">Activate Care</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/pairteam.jpg" alt="Pair Team" />
+                        <div class="tooltip">Pair Team</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/pearsuite.jpg" alt="Pear Suite" />
+                        <div class="tooltip">Pear Suite</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/wellsky.jpg" alt="Wellsky" />
+                        <div class="tooltip">Wellsky</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/zocalohealth.png" alt="Zocalo Health" />
+                        <div class="tooltip">Zocalo Health</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/fortunahealth.jpg" alt="Fortuna Health" />
+                        <div class="tooltip">Fortuna Health</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">18</span>
+
+                    <div class="logo-item">
+                        <img src="logos/exygy.png" alt="Exygy" />
+                        <div class="tooltip">Exygy</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/mirza.jpg" alt="Mirza" />
+                        <div class="tooltip">Mirza</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/singlestop.jpg" alt="Single Stop USA" />
+                        <div class="tooltip">Single Stop USA</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava Labs" />
+                        <div class="tooltip">Nava Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/workmoney.jpg" alt="WorkMoney" />
+                        <div class="tooltip">WorkMoney</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/saverlife.png" alt="SaverLife" />
+                        <div class="tooltip">SaverLife</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/amplifi.jpg" alt="Amplifi (FKA ImagineLA)" />
+                        <div class="tooltip">Amplifi (FKA ImagineLA)</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/thrivelink.jpg" alt="Thrivelink" />
+                        <div class="tooltip">Thrivelink</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/onedegree.png" alt="OneDegree" />
+                        <div class="tooltip">OneDegree</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/visionlink.png" alt="VisionLink" />
+                        <div class="tooltip">VisionLink</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/caseworthy.avif" alt="Caseworthy" />
+                        <div class="tooltip">Caseworthy</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/cityblockhealth.avif" alt="Cityblock Health" />
+                        <div class="tooltip">Cityblock Health</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/activatecare.png" alt="Activate Care" />
+                        <div class="tooltip">Activate Care</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/pairteam.jpg" alt="Pair Team" />
+                        <div class="tooltip">Pair Team</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/pearsuite.jpg" alt="Pear Suite" />
+                        <div class="tooltip">Pear Suite</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/wellsky.jpg" alt="Wellsky" />
+                        <div class="tooltip">Wellsky</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/zocalohealth.png" alt="Zocalo Health" />
+                        <div class="tooltip">Zocalo Health</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/fortunahealth.jpg" alt="Fortuna Health" />
+                        <div class="tooltip">Fortuna Health</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">5</span>
+
+                    <div class="logo-item">
+                        <img src="logos/exygy.png" alt="Exygy" />
+                        <div class="tooltip">Exygy</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/beam.png" alt="Beam" />
+                        <div class="tooltip">Beam</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/communityconnectlabs.png" alt="CommunityConnect Labs" />
+                        <div class="tooltip">CommunityConnect Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/promisepay.jpg" alt="Promise Pay" />
+                        <div class="tooltip">Promise Pay</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">2</span>
+
+                    <div class="logo-item">
+                        <img src="logos/beam.png" alt="Beam" />
+                        <div class="tooltip">Beam</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">6</span>
+
+                    <div class="logo-item">
+                        <img src="logos/beam.png" alt="Beam" />
+                        <div class="tooltip">Beam</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/mirza.jpg" alt="Mirza" />
+                        <div class="tooltip">Mirza</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/communityconnectlabs.png" alt="CommunityConnect Labs" />
+                        <div class="tooltip">CommunityConnect Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/promisepay.jpg" alt="Promise Pay" />
+                        <div class="tooltip">Promise Pay</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/fortunahealth.jpg" alt="Fortuna Health" />
+                        <div class="tooltip">Fortuna Health</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell empty-cell">—</div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">4</span>
+
+                    <div class="logo-item">
+                        <img src="logos/policyengine.webp" alt="PolicyEngine" />
+                        <div class="tooltip">PolicyEngine</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/benefitkitchen.png" alt="Benefits Kitchen" />
+                        <div class="tooltip">Benefits Kitchen</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/aidkit.png" alt="Aidkit" />
+                        <div class="tooltip">Aidkit</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/promisepay.jpg" alt="Promise Pay" />
+                        <div class="tooltip">Promise Pay</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell label-cell">
+                    <div class="label-name">Transit Passes</div>
+                    <div class="label-count">(13)</div>
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">11</span>
+
+                    <div class="logo-item">
+                        <img src="logos/myfriendben.webp" alt="MyFriendBen" />
+                        <div class="tooltip">MyFriendBen</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/mirza.jpg" alt="Mirza" />
+                        <div class="tooltip">Mirza</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/singlestop.jpg" alt="Single Stop USA" />
+                        <div class="tooltip">Single Stop USA</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava Labs" />
+                        <div class="tooltip">Nava Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/workmoney.jpg" alt="WorkMoney" />
+                        <div class="tooltip">WorkMoney</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/saverlife.png" alt="SaverLife" />
+                        <div class="tooltip">SaverLife</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/amplifi.jpg" alt="Amplifi (FKA ImagineLA)" />
+                        <div class="tooltip">Amplifi (FKA ImagineLA)</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/findhelp.webp" alt="FindHelp" />
+                        <div class="tooltip">FindHelp</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/onedegree.png" alt="OneDegree" />
+                        <div class="tooltip">OneDegree</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/visionlink.png" alt="VisionLink" />
+                        <div class="tooltip">VisionLink</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/caseworthy.avif" alt="Caseworthy" />
+                        <div class="tooltip">Caseworthy</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">10</span>
+
+                    <div class="logo-item">
+                        <img src="logos/exygy.png" alt="Exygy" />
+                        <div class="tooltip">Exygy</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/mirza.jpg" alt="Mirza" />
+                        <div class="tooltip">Mirza</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/singlestop.jpg" alt="Single Stop USA" />
+                        <div class="tooltip">Single Stop USA</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava Labs" />
+                        <div class="tooltip">Nava Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/workmoney.jpg" alt="WorkMoney" />
+                        <div class="tooltip">WorkMoney</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/saverlife.png" alt="SaverLife" />
+                        <div class="tooltip">SaverLife</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/amplifi.jpg" alt="Amplifi (FKA ImagineLA)" />
+                        <div class="tooltip">Amplifi (FKA ImagineLA)</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/onedegree.png" alt="OneDegree" />
+                        <div class="tooltip">OneDegree</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/visionlink.png" alt="VisionLink" />
+                        <div class="tooltip">VisionLink</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/caseworthy.avif" alt="Caseworthy" />
+                        <div class="tooltip">Caseworthy</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">2</span>
+
+                    <div class="logo-item">
+                        <img src="logos/exygy.png" alt="Exygy" />
+                        <div class="tooltip">Exygy</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/beam.png" alt="Beam" />
+                        <div class="tooltip">Beam</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">1</span>
+
+                    <div class="logo-item">
+                        <img src="logos/beam.png" alt="Beam" />
+                        <div class="tooltip">Beam</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">2</span>
+
+                    <div class="logo-item">
+                        <img src="logos/beam.png" alt="Beam" />
+                        <div class="tooltip">Beam</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/mirza.jpg" alt="Mirza" />
+                        <div class="tooltip">Mirza</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell empty-cell">—</div>
+
+                <div class="matrix-cell content-cell empty-cell">—</div>
+
+                <div class="matrix-cell label-cell">
+                    <div class="label-name">LifeLine</div>
+                    <div class="label-count">(9)</div>
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">9</span>
+
+                    <div class="logo-item">
+                        <img src="logos/myfriendben.webp" alt="MyFriendBen" />
+                        <div class="tooltip">MyFriendBen</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/mirza.jpg" alt="Mirza" />
+                        <div class="tooltip">Mirza</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/singlestop.jpg" alt="Single Stop USA" />
+                        <div class="tooltip">Single Stop USA</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava Labs" />
+                        <div class="tooltip">Nava Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/workmoney.jpg" alt="WorkMoney" />
+                        <div class="tooltip">WorkMoney</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/saverlife.png" alt="SaverLife" />
+                        <div class="tooltip">SaverLife</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/amplifi.jpg" alt="Amplifi (FKA ImagineLA)" />
+                        <div class="tooltip">Amplifi (FKA ImagineLA)</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/visionlink.png" alt="VisionLink" />
+                        <div class="tooltip">VisionLink</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/caseworthy.avif" alt="Caseworthy" />
+                        <div class="tooltip">Caseworthy</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">8</span>
+
+                    <div class="logo-item">
+                        <img src="logos/mirza.jpg" alt="Mirza" />
+                        <div class="tooltip">Mirza</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/singlestop.jpg" alt="Single Stop USA" />
+                        <div class="tooltip">Single Stop USA</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/nava.png" alt="Nava Labs" />
+                        <div class="tooltip">Nava Labs</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/workmoney.jpg" alt="WorkMoney" />
+                        <div class="tooltip">WorkMoney</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/saverlife.png" alt="SaverLife" />
+                        <div class="tooltip">SaverLife</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/amplifi.jpg" alt="Amplifi (FKA ImagineLA)" />
+                        <div class="tooltip">Amplifi (FKA ImagineLA)</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/visionlink.png" alt="VisionLink" />
+                        <div class="tooltip">VisionLink</div>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="logos/caseworthy.avif" alt="Caseworthy" />
+                        <div class="tooltip">Caseworthy</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell empty-cell">—</div>
+
+                <div class="matrix-cell content-cell empty-cell">—</div>
+
+                <div class="matrix-cell content-cell">
+                    <span class="count-badge">1</span>
+
+                    <div class="logo-item">
+                        <img src="logos/mirza.jpg" alt="Mirza" />
+                        <div class="tooltip">Mirza</div>
+                    </div>
+
+                </div>
+
+                <div class="matrix-cell content-cell empty-cell">—</div>
+
+                <div class="matrix-cell content-cell empty-cell">—</div>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
